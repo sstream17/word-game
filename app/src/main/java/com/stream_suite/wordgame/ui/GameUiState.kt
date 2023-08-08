@@ -1,10 +1,11 @@
 package com.stream_suite.wordgame.ui
 
 import com.stream_suite.wordgame.LetterState
+import com.stream_suite.wordgame.data.WORD_LENGTH
 
 data class GameUiState(
-    val letters: List<MutableList<Letter>> = List(6) { MutableList(5) { Letter(' ') } },
-    val position: Position = Position(0, 0),
+    val letters: List<MutableList<Letter>> = List(6) { MutableList(WORD_LENGTH) { Letter(' ') } },
+    val position: Position = Position(),
 )
 
 data class Letter(
@@ -12,7 +13,7 @@ data class Letter(
     val state: LetterState = LetterState.Initial,
 )
 
-data class Position(var row: Int, var col: Int) {
+data class Position(var row: Int = 0, var col: Int = 0) {
     fun nextColumn(): Position {
         return Position(row, col + 1)
     }

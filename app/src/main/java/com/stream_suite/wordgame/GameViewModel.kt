@@ -7,6 +7,7 @@ import com.stream_suite.wordgame.data.wordList
 import com.stream_suite.wordgame.data.wordListSize
 import com.stream_suite.wordgame.ui.GameUiState
 import com.stream_suite.wordgame.ui.Letter
+import com.stream_suite.wordgame.ui.Position
 import com.stream_suite.wordgame.util.wordlistBinarySearch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -132,7 +133,13 @@ class GameViewModel : ViewModel() {
     }
 
     fun resetGame() {
+        guess = ""
         answer = getNewWord()
+        _uiState.update { currentState ->
+            currentState.copy(
+                letters = List(6) { MutableList(WORD_LENGTH) { Letter(' ') } }, position = Position()
+            )
+        }
     }
 
     private fun getNewWord(): String {
