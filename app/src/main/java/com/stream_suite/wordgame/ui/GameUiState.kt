@@ -8,12 +8,10 @@ const val NUMBER_OF_TRIES = 5
 
 data class GameUiState(
     val numberOfGames: Int = 1,
-    val letters: List<List<MutableList<Letter>>> = List(numberOfGames) {
-        List(numberOfGames + NUMBER_OF_TRIES) {
-            MutableList(
-                WORD_LENGTH
-            ) { Letter(' ') }
-        }
+    val letters: List<MutableList<Letter>> = List(numberOfGames + NUMBER_OF_TRIES) {
+        MutableList(
+            WORD_LENGTH
+        ) { Letter(letter = ' ', states = MutableList(numberOfGames) { LetterState.Initial }) }
     },
     val keys: MutableMap<Char, MutableList<LetterState>> = Keys.map {
         it to MutableList(1) {
@@ -25,7 +23,7 @@ data class GameUiState(
 
 data class Letter(
     val letter: Char,
-    val state: LetterState = LetterState.Initial,
+    val states: MutableList<LetterState> = MutableList(1) { LetterState.Initial },
 )
 
 data class Position(var row: Int = 0, var col: Int = 0) {

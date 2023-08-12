@@ -33,7 +33,7 @@ fun GameScreen(gameViewModel: GameViewModel = viewModel()) {
             linkTo(start = parent.start, end = parent.end)
             height = Dimension.fillToConstraints
         }) {
-            GuessBoard(letterRows = gameUiState.letters[0])
+            PlayArea(numberOfGames = gameUiState.numberOfGames, letters = gameUiState.letters)
         }
         Box(modifier = Modifier
             .padding(vertical = 16.dp)
@@ -43,8 +43,8 @@ fun GameScreen(gameViewModel: GameViewModel = viewModel()) {
             }) {
             Keyboard(
                 keys = gameUiState.keys,
-                onClickLetter = { gameViewModel.setLetters(it) },
-                onClickDelete = { gameViewModel.deleteLetters() },
+                onClickLetter = { gameViewModel.setLetter(it) },
+                onClickDelete = { gameViewModel.deleteLetter() },
                 onClickSubmit = { gameViewModel.checkGuess() },
             )
         }

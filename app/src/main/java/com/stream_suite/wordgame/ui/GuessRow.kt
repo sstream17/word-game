@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.stream_suite.wordgame.LetterState
 import com.stream_suite.wordgame.R
+import com.stream_suite.wordgame.data.WORD_LENGTH
 import com.stream_suite.wordgame.ui.theme.AlmostYellow
 import com.stream_suite.wordgame.ui.theme.CorrectGreen
 import com.stream_suite.wordgame.ui.theme.InactiveGray
@@ -25,7 +26,7 @@ import com.stream_suite.wordgame.ui.theme.OffWhite
 import com.stream_suite.wordgame.ui.theme.Typography
 
 @Composable
-fun GuessRow(letters: List<Letter>) {
+fun GuessRow(letters: List<Letter>, gameIndex: Int) {
     val mediumPadding = dimensionResource(R.dimen.padding_medium)
 
     Row(
@@ -33,7 +34,7 @@ fun GuessRow(letters: List<Letter>) {
         horizontalArrangement = Arrangement.spacedBy(mediumPadding)
     ) {
         letters.forEach { letter: Letter ->
-            val cardColor = when (letter.state) {
+            val cardColor = when (letter.states[gameIndex]) {
                 LetterState.Initial -> OffWhite
                 LetterState.Correct -> CorrectGreen
                 LetterState.Exists -> AlmostYellow
@@ -61,34 +62,34 @@ fun GuessRow(letters: List<Letter>) {
 
 @Preview(showBackground = true)
 @Composable
-fun BlankGuessRowPreview(letters: List<Letter> = List(5) { Letter(' ') }) {
-    GuessRow(letters)
+fun BlankGuessRowPreview(letters: List<Letter> = List(WORD_LENGTH) { Letter(' ') }) {
+    GuessRow(letters, 0)
 }
 
 @Preview(showBackground = true)
 @Composable
 fun InProgressGuessRowPreview(
     letters: List<Letter> = listOf(
-        Letter('S', LetterState.Initial),
-        Letter('A', LetterState.Initial),
+        Letter('S', mutableListOf(LetterState.Initial)),
+        Letter('A', mutableListOf(LetterState.Initial)),
         Letter(' '),
         Letter(' '),
         Letter(' ')
     )
 ) {
-    GuessRow(letters)
+    GuessRow(letters, 0)
 }
 
 @Preview(showBackground = true)
 @Composable
 fun SubmittedGuessRowPreview(
     letters: List<Letter> = listOf(
-        Letter('S', LetterState.Missing),
-        Letter('A', LetterState.Exists),
-        Letter('L', LetterState.Missing),
-        Letter('E', LetterState.Correct),
-        Letter('T', LetterState.Exists)
+        Letter('S', mutableListOf(LetterState.Missing)),
+        Letter('A', mutableListOf(LetterState.Exists)),
+        Letter('L', mutableListOf(LetterState.Missing)),
+        Letter('E', mutableListOf(LetterState.Correct)),
+        Letter('T', mutableListOf(LetterState.Exists))
     )
 ) {
-    GuessRow(letters)
+    GuessRow(letters, 0)
 }
