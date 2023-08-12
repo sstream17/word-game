@@ -34,10 +34,9 @@ class GameViewModel : ViewModel() {
         if (currentPosition.col < WORD_LENGTH) {
             guess += letter
             val letters = _uiState.value.letters
-            letters[currentPosition.row][currentPosition.col] =
-                letters[currentPosition.row][currentPosition.col].copy(
-                    letter = letter, state = LetterState.Initial
-                )
+            letters[currentPosition.row][currentPosition.col] = Letter(
+                letter = letter, state = LetterState.Initial
+            )
             _uiState.update { currentState ->
                 currentState.copy(
                     letters = letters, position = currentPosition.nextColumn()
@@ -52,7 +51,7 @@ class GameViewModel : ViewModel() {
             guess = guess.dropLast(1)
             val letters = _uiState.value.letters
             letters[currentPosition.row][currentPosition.col - 1] =
-                letters[currentPosition.row][currentPosition.col - 1].copy(
+                Letter(
                     letter = ' ', state = LetterState.Initial
                 )
             _uiState.update { currentState ->
@@ -137,7 +136,8 @@ class GameViewModel : ViewModel() {
         answer = getNewWord()
         _uiState.update { currentState ->
             currentState.copy(
-                letters = List(6) { MutableList(WORD_LENGTH) { Letter(' ') } }, position = Position()
+                letters = List(6) { MutableList(WORD_LENGTH) { Letter(' ') } },
+                position = currentState.position.reset()
             )
         }
     }
