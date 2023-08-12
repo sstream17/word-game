@@ -24,6 +24,7 @@ class GameViewModel : ViewModel() {
 
     private lateinit var answers: List<String>
     private var guess = ""
+    private var maxGuesses = _uiState.value.numberOfGames + NUMBER_OF_TRIES
 
     init {
         resetGame()
@@ -31,6 +32,9 @@ class GameViewModel : ViewModel() {
 
     fun setLetter(letter: Char) {
         val currentPosition = _uiState.value.position
+        if (currentPosition.row == maxGuesses) {
+            return
+        }
         if (currentPosition.col < WORD_LENGTH) {
             guess += letter
             val numberOfGames = _uiState.value.numberOfGames
@@ -47,6 +51,9 @@ class GameViewModel : ViewModel() {
 
     fun deleteLetter() {
         val currentPosition = _uiState.value.position
+        if (currentPosition.row == maxGuesses) {
+            return
+        }
         if (currentPosition.col > 0) {
             guess = guess.dropLast(1)
             val numberOfGames = _uiState.value.numberOfGames
@@ -62,20 +69,17 @@ class GameViewModel : ViewModel() {
     }
 
     fun checkGuess() {
-        val currentPosition = _uiState.value.position
-        val maxGuesses = _uiState.value.numberOfGames + NUMBER_OF_TRIES - 1
+        if (_uiState.value.position.row == maxGuesses) {
+            return
+        }
         when {
             guess.length < WORD_LENGTH -> {
                 Log.d("yeet", "checkGuess: not enough chars")
             }
 
             wordlistBinarySearch(wordList, guess.lowercase(), 0, wordListSize, WORD_LENGTH) -> {
-                if (currentPosition.row == maxGuesses) {
-                    Log.d("yeet", "checkGuess: lost")
-                } else {
-                    Log.d("yeet", "checkGuess: next try")
-                    setNextGuess()
-                }
+                Log.d("yeet", "checkGuess: next try")
+                setNextGuess()
             }
 
             else -> {
@@ -110,6 +114,10 @@ class GameViewModel : ViewModel() {
                 Log.d("yeet", "game $gameIndex won")
             }
             getRowColor(answers[gameIndex], guess, gameIndex, currentPosition, letters, keys)
+        }
+
+        if (currentPosition.row == maxGuesses - 1) {
+            Log.d("yeet", "game lost")
         }
 
         return Pair(letters, keys)
@@ -151,6 +159,7 @@ class GameViewModel : ViewModel() {
     fun resetGame() {
         val numberOfGames = _uiState.value.numberOfGames
         guess = ""
+        maxGuesses = numberOfGames + NUMBER_OF_TRIES
         answers = List(numberOfGames) { getNewWord() }
         _uiState.update { currentState ->
             currentState.copy(letters = List(numberOfGames + NUMBER_OF_TRIES) {
