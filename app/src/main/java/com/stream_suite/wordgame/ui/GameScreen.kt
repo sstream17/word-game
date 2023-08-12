@@ -22,12 +22,12 @@ fun GameScreen(gameViewModel: GameViewModel = viewModel()) {
         Box(modifier = Modifier.wrapContentSize()) {
             GameHeader(onClickRestart = { gameViewModel.resetGame() })
         }
-        Box(modifier = Modifier.weight(7f)) {
+        Box(modifier = Modifier.weight(8f)) {
             GuessBoard(letterRows = gameUiState.letters)
         }
         Box(
             modifier = Modifier
-                .weight(2f)
+                .weight(3f)
                 .padding(vertical = 16.dp)
         ) {
             Keyboard(
