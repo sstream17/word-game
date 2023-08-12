@@ -6,8 +6,8 @@ import com.stream_suite.wordgame.data.WORD_LENGTH
 import com.stream_suite.wordgame.data.wordList
 import com.stream_suite.wordgame.data.wordListSize
 import com.stream_suite.wordgame.ui.GameUiState
+import com.stream_suite.wordgame.ui.Key
 import com.stream_suite.wordgame.ui.Letter
-import com.stream_suite.wordgame.ui.Position
 import com.stream_suite.wordgame.util.wordlistBinarySearch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -50,10 +50,9 @@ class GameViewModel : ViewModel() {
         if (currentPosition.col > 0) {
             guess = guess.dropLast(1)
             val letters = _uiState.value.letters
-            letters[currentPosition.row][currentPosition.col - 1] =
-                Letter(
-                    letter = ' ', state = LetterState.Initial
-                )
+            letters[currentPosition.row][currentPosition.col - 1] = Letter(
+                letter = ' ', state = LetterState.Initial
+            )
             _uiState.update { currentState ->
                 currentState.copy(
                     letters = letters, position = currentPosition.previousColumn()
@@ -94,41 +93,52 @@ class GameViewModel : ViewModel() {
     }
 
     fun setNextGuess() {
-        val newLetters = getRowColor(answer, guess.lowercase())
+        val (newLetters, newKeys) = getRowColor(answer, guess.lowercase())
         guess = ""
         _uiState.update { currentState ->
             currentState.copy(
-                letters = newLetters, position = currentState.position.nextRow()
+                letters = newLetters, keys = newKeys, position = currentState.position.nextRow()
             )
         }
     }
 
-    fun getRowColor(answer: String, guess: String): List<MutableList<Letter>> {
+    fun getRowColor(
+        answer: String, guess: String
+    ): Pair<List<MutableList<Letter>>, MutableMap<Char, Key>> {
         val currentPosition = _uiState.value.position
         val letters = _uiState.value.letters
+        val keys = _uiState.value.keys
         letters[currentPosition.row].forEachIndexed { index, _ ->
-            when (guess[index]) {
+            val currentLetter = guess[index]
+            val currentLetterUpper = currentLetter.uppercaseChar()
+            when (currentLetter) {
                 answer[index] -> {
+                    val state = LetterState.Correct
+                    keys[currentLetterUpper] = Key(mutableListOf(state))
                     letters[currentPosition.row][index] = letters[currentPosition.row][index].copy(
-                        state = LetterState.Correct
+                        state = state,
                     )
                 }
 
                 in answer.filterIndexed { answerLetterIndex, answerLetter -> guess[answerLetterIndex] != answerLetter } -> {
+                    val state = LetterState.Exists
+                    keys[currentLetterUpper] = Key(mutableListOf(state))
                     letters[currentPosition.row][index] = letters[currentPosition.row][index].copy(
-                        state = LetterState.Exists
+                        state = state
                     )
                 }
 
                 else -> {
+                    val state = LetterState.Missing
+                    keys[currentLetterUpper] = Key(mutableListOf(state))
                     letters[currentPosition.row][index] = letters[currentPosition.row][index].copy(
-                        state = LetterState.Missing
+                        state = state
                     )
                 }
             }
         }
 
-        return letters
+        return Pair(letters, keys)
     }
 
     fun resetGame() {
