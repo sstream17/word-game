@@ -115,7 +115,6 @@ class GameViewModel : ViewModel() {
             when (currentLetter) {
                 answer[index] -> {
                     val state = LetterState.Correct
-                    keys[currentLetterUpper] = Key(mutableListOf(state))
                     letters[currentPosition.row][index] = letters[currentPosition.row][index].copy(
                         state = state,
                     )
@@ -123,7 +122,6 @@ class GameViewModel : ViewModel() {
 
                 in answer.filterIndexed { answerLetterIndex, answerLetter -> guess[answerLetterIndex] != answerLetter } -> {
                     val state = LetterState.Exists
-                    keys[currentLetterUpper] = Key(mutableListOf(state))
                     letters[currentPosition.row][index] = letters[currentPosition.row][index].copy(
                         state = state
                     )
@@ -131,12 +129,18 @@ class GameViewModel : ViewModel() {
 
                 else -> {
                     val state = LetterState.Missing
-                    keys[currentLetterUpper] = Key(mutableListOf(state))
                     letters[currentPosition.row][index] = letters[currentPosition.row][index].copy(
                         state = state
                     )
                 }
             }
+            val letterState = letters[currentPosition.row][index].state
+            val keyState = when (keys[currentLetterUpper]?.states?.get(0)) {
+                LetterState.Correct -> LetterState.Correct
+                LetterState.Exists -> if (letterState == LetterState.Correct) LetterState.Correct else LetterState.Exists
+                else -> letterState
+            }
+            keys[currentLetterUpper] = Key(mutableListOf(keyState))
         }
 
         return Pair(letters, keys)
