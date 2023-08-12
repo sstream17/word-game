@@ -26,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import com.stream_suite.wordgame.LetterState
 import com.stream_suite.wordgame.R
 import com.stream_suite.wordgame.ui.theme.AlmostYellow
 import com.stream_suite.wordgame.ui.theme.CorrectGreen
@@ -42,12 +43,12 @@ fun Keyboard(
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         KeyRow {
             "QWERTYUIOP".forEach { letter ->
-                KeyButton(letter = letter, onClick = onClickLetter, colors = keys[letter]?.colors)
+                KeyButton(letter = letter, onClick = onClickLetter, states = keys[letter]?.states)
             }
         }
         KeyRow {
             "ASDFGHJKL".forEach { letter ->
-                KeyButton(letter = letter, onClick = onClickLetter, colors = keys[letter]?.colors)
+                KeyButton(letter = letter, onClick = onClickLetter, states = keys[letter]?.states)
             }
         }
         KeyRow {
@@ -60,7 +61,7 @@ fun Keyboard(
                 )
             }
             "ZXCVBNM".forEach { letter ->
-                KeyButton(letter = letter, onClick = onClickLetter, colors = keys[letter]?.colors)
+                KeyButton(letter = letter, onClick = onClickLetter, states = keys[letter]?.states)
             }
             Button(modifier = Modifier.wrapContentWidth(),
                 contentPadding = PaddingValues(4.dp),
@@ -83,50 +84,50 @@ fun KeyRow(content: @Composable () -> Unit) {
 }
 
 @Composable
-fun KeyButton(letter: Char, onClick: (Char) -> Unit, colors: MutableList<Color>?) {
-    when (colors?.size) {
+fun KeyButton(letter: Char, onClick: (Char) -> Unit, states: List<LetterState>?) {
+    when (states?.size) {
         4 -> KeyButton(
-            letter = letter, onClick = onClick, colors = ColorQuadrants(
-                topLeftColor = colors[0],
-                topRightColor = colors[1],
-                bottomLeftColor = colors[2],
-                bottomRightColor = colors[3]
+            letter = letter, onClick = onClick, states = StateQuadrants(
+                topLeftState = states[0],
+                topRightState = states[1],
+                bottomLeftState = states[2],
+                bottomRightState = states[3]
             )
         )
 
         2 -> KeyButton(
             letter = letter,
             onClick = onClick,
-            colors = ColorHalves(leftColor = colors[0], rightColor = colors[1])
+            states = StateHalves(leftState = states[0], rightState = states[1])
         )
 
-        1 -> KeyButton(letter = letter, onClick = onClick, color = colors[0])
+        1 -> KeyButton(letter = letter, onClick = onClick, state = states[0])
     }
 }
 
 @Composable
-fun KeyButton(letter: Char, onClick: (Char) -> Unit, color: Color) {
+fun KeyButton(letter: Char, onClick: (Char) -> Unit, state: LetterState) {
     KeyButton(
         letter = letter,
         onClick = onClick,
-        colors = ColorHalves(leftColor = color, rightColor = color)
+        states = StateHalves(leftState = state, rightState = state)
     )
 }
 
 @Composable
-fun KeyButton(letter: Char, onClick: (Char) -> Unit, colors: ColorHalves) {
+fun KeyButton(letter: Char, onClick: (Char) -> Unit, states: StateHalves) {
     KeyButton(
-        letter = letter, onClick = onClick, colors = ColorQuadrants(
-            topLeftColor = colors.leftColor,
-            bottomLeftColor = colors.leftColor,
-            topRightColor = colors.rightColor,
-            bottomRightColor = colors.rightColor
+        letter = letter, onClick = onClick, states = StateQuadrants(
+            topLeftState = states.leftState,
+            bottomLeftState = states.leftState,
+            topRightState = states.rightState,
+            bottomRightState = states.rightState
         )
     )
 }
 
 @Composable
-fun KeyButton(letter: Char, onClick: (Char) -> Unit, colors: ColorQuadrants) {
+fun KeyButton(letter: Char, onClick: (Char) -> Unit, states: StateQuadrants) {
     ConstraintLayout(modifier = Modifier
         .width(32.dp)
         .wrapContentHeight()
@@ -138,7 +139,7 @@ fun KeyButton(letter: Char, onClick: (Char) -> Unit, colors: ColorQuadrants) {
         val horizontalMidpoint = createGuidelineFromTop(0.5f)
 
         Box(modifier = Modifier
-            .background(colors.topLeftColor)
+            .background(stateToColor(states.topLeftState))
             .constrainAs(boxOne) {
                 linkTo(top = parent.top, bottom = horizontalMidpoint)
                 linkTo(start = parent.start, end = verticalMidpoint)
@@ -146,7 +147,7 @@ fun KeyButton(letter: Char, onClick: (Char) -> Unit, colors: ColorQuadrants) {
                 height = Dimension.fillToConstraints
             })
         Box(modifier = Modifier
-            .background(colors.topRightColor)
+            .background(stateToColor(states.topRightState))
             .constrainAs(boxTwo) {
                 linkTo(top = parent.top, bottom = horizontalMidpoint)
                 linkTo(start = verticalMidpoint, end = parent.end)
@@ -154,7 +155,7 @@ fun KeyButton(letter: Char, onClick: (Char) -> Unit, colors: ColorQuadrants) {
                 height = Dimension.fillToConstraints
             })
         Box(modifier = Modifier
-            .background(colors.bottomLeftColor)
+            .background(stateToColor(states.bottomLeftState))
             .constrainAs(boxThree) {
                 linkTo(top = horizontalMidpoint, bottom = parent.bottom)
                 linkTo(start = parent.start, end = verticalMidpoint)
@@ -162,7 +163,7 @@ fun KeyButton(letter: Char, onClick: (Char) -> Unit, colors: ColorQuadrants) {
                 height = Dimension.fillToConstraints
             })
         Box(modifier = Modifier
-            .background(colors.bottomRightColor)
+            .background(stateToColor(states.bottomRightState))
             .constrainAs(boxFour) {
                 linkTo(top = horizontalMidpoint, bottom = parent.bottom)
                 linkTo(start = verticalMidpoint, end = parent.end)
@@ -174,6 +175,15 @@ fun KeyButton(letter: Char, onClick: (Char) -> Unit, colors: ColorQuadrants) {
                 centerTo(parent)
             }
             .padding(4.dp, 12.dp))
+    }
+}
+
+private fun stateToColor(state: LetterState): Color {
+    return when (state) {
+        LetterState.Initial -> OffWhite
+        LetterState.Correct -> CorrectGreen
+        LetterState.Exists -> AlmostYellow
+        LetterState.Missing -> InactiveGray
     }
 }
 
@@ -191,7 +201,7 @@ fun KeyboardPreview() {
 @Composable
 fun KeyboardSingleColorPreview() {
     Keyboard(onClickLetter = {}, onClickDelete = {}, onClickSubmit = {}, keys = Keys.map {
-        it to Key(colors = mutableListOf(CorrectGreen))
+        it to Key(states = mutableListOf(LetterState.Correct))
     }.toMap().toMutableMap())
 }
 
@@ -199,7 +209,7 @@ fun KeyboardSingleColorPreview() {
 @Composable
 fun KeyboardTwoColorPreview() {
     Keyboard(onClickLetter = {}, onClickDelete = {}, onClickSubmit = {}, keys = Keys.map {
-        it to Key(colors = mutableListOf(CorrectGreen, AlmostYellow))
+        it to Key(states = mutableListOf(LetterState.Correct, LetterState.Exists))
     }.toMap().toMutableMap())
 }
 
@@ -207,6 +217,10 @@ fun KeyboardTwoColorPreview() {
 @Composable
 fun KeyboardFourColorPreview() {
     Keyboard(onClickLetter = {}, onClickDelete = {}, onClickSubmit = {}, keys = Keys.map {
-        it to Key(colors = mutableListOf(CorrectGreen, AlmostYellow, InactiveGray, OffWhite))
+        it to Key(
+            states = mutableListOf(
+                LetterState.Correct, LetterState.Exists, LetterState.Missing, LetterState.Initial
+            )
+        )
     }.toMap().toMutableMap())
 }

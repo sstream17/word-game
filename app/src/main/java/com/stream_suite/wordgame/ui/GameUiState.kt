@@ -1,9 +1,7 @@
 package com.stream_suite.wordgame.ui
 
-import androidx.compose.ui.graphics.Color
 import com.stream_suite.wordgame.LetterState
 import com.stream_suite.wordgame.data.WORD_LENGTH
-import com.stream_suite.wordgame.ui.theme.OffWhite
 
 const val Keys = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -36,13 +34,13 @@ data class Position(var row: Int = 0, var col: Int = 0) {
     }
 }
 
-data class Key(val colors: MutableList<Color> = MutableList(1) { OffWhite })
+data class Key(val states: MutableList<LetterState> = MutableList(1) { LetterState.Initial })
 
-data class ColorHalves(val leftColor: Color = OffWhite, val rightColor: Color = OffWhite)
+data class StateHalves(val leftState: LetterState = LetterState.Initial, val rightState: LetterState = LetterState.Initial)
 
-data class ColorQuadrants(
-    val topLeftColor: Color = OffWhite,
-    val topRightColor: Color = OffWhite,
-    val bottomLeftColor: Color = OffWhite,
-    val bottomRightColor: Color = OffWhite,
+data class StateQuadrants(
+    val topLeftState: LetterState = LetterState.Initial,
+    val topRightState: LetterState = LetterState.Initial,
+    val bottomLeftState: LetterState = LetterState.Initial,
+    val bottomRightState: LetterState = LetterState.Initial,
 )
