@@ -31,6 +31,7 @@ fun GameScreen(gameViewModel: GameViewModel = viewModel()) {
                 .padding(vertical = 16.dp)
         ) {
             Keyboard(
+                keys = gameUiState.keys,
                 onClickLetter = { gameViewModel.setLetter(it) },
                 onClickDelete = { gameViewModel.deleteLetter() },
                 onClickSubmit = { gameViewModel.checkGuess() }

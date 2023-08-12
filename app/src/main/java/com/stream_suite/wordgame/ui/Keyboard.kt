@@ -20,25 +20,34 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.stream_suite.wordgame.R
+import com.stream_suite.wordgame.ui.theme.AlmostYellow
+import com.stream_suite.wordgame.ui.theme.CorrectGreen
+import com.stream_suite.wordgame.ui.theme.InactiveGray
 import com.stream_suite.wordgame.ui.theme.OffWhite
 
 @Composable
-fun Keyboard(onClickLetter: (Char) -> Unit, onClickDelete: () -> Unit, onClickSubmit: () -> Unit) {
+fun Keyboard(
+    keys: MutableMap<Char, Key>,
+    onClickLetter: (Char) -> Unit,
+    onClickDelete: () -> Unit,
+    onClickSubmit: () -> Unit,
+) {
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         KeyRow {
             "QWERTYUIOP".forEach { letter ->
-                KeyButton(letter = letter, onClick = onClickLetter)
+                KeyButton(letter = letter, onClick = onClickLetter, colors = keys[letter]?.colors)
             }
         }
         KeyRow {
             "ASDFGHJKL".forEach { letter ->
-                KeyButton(letter = letter, onClick = onClickLetter)
+                KeyButton(letter = letter, onClick = onClickLetter, colors = keys[letter]?.colors)
             }
         }
         KeyRow {
@@ -51,7 +60,7 @@ fun Keyboard(onClickLetter: (Char) -> Unit, onClickDelete: () -> Unit, onClickSu
                 )
             }
             "ZXCVBNM".forEach { letter ->
-                KeyButton(letter = letter, onClick = onClickLetter)
+                KeyButton(letter = letter, onClick = onClickLetter, colors = keys[letter]?.colors)
             }
             Button(modifier = Modifier.wrapContentWidth(),
                 contentPadding = PaddingValues(4.dp),
@@ -74,7 +83,50 @@ fun KeyRow(content: @Composable () -> Unit) {
 }
 
 @Composable
-fun KeyButton(letter: Char, onClick: (Char) -> Unit) {
+fun KeyButton(letter: Char, onClick: (Char) -> Unit, colors: MutableList<Color>?) {
+    when (colors?.size) {
+        4 -> KeyButton(
+            letter = letter, onClick = onClick, colors = ColorQuadrants(
+                topLeftColor = colors[0],
+                topRightColor = colors[1],
+                bottomLeftColor = colors[2],
+                bottomRightColor = colors[3]
+            )
+        )
+
+        2 -> KeyButton(
+            letter = letter,
+            onClick = onClick,
+            colors = ColorHalves(leftColor = colors[0], rightColor = colors[1])
+        )
+
+        1 -> KeyButton(letter = letter, onClick = onClick, color = colors[0])
+    }
+}
+
+@Composable
+fun KeyButton(letter: Char, onClick: (Char) -> Unit, color: Color) {
+    KeyButton(
+        letter = letter,
+        onClick = onClick,
+        colors = ColorHalves(leftColor = color, rightColor = color)
+    )
+}
+
+@Composable
+fun KeyButton(letter: Char, onClick: (Char) -> Unit, colors: ColorHalves) {
+    KeyButton(
+        letter = letter, onClick = onClick, colors = ColorQuadrants(
+            topLeftColor = colors.leftColor,
+            bottomLeftColor = colors.leftColor,
+            topRightColor = colors.rightColor,
+            bottomRightColor = colors.rightColor
+        )
+    )
+}
+
+@Composable
+fun KeyButton(letter: Char, onClick: (Char) -> Unit, colors: ColorQuadrants) {
     ConstraintLayout(modifier = Modifier
         .width(32.dp)
         .wrapContentHeight()
@@ -86,7 +138,7 @@ fun KeyButton(letter: Char, onClick: (Char) -> Unit) {
         val horizontalMidpoint = createGuidelineFromTop(0.5f)
 
         Box(modifier = Modifier
-            .background(OffWhite)
+            .background(colors.topLeftColor)
             .constrainAs(boxOne) {
                 linkTo(top = parent.top, bottom = horizontalMidpoint)
                 linkTo(start = parent.start, end = verticalMidpoint)
@@ -94,7 +146,7 @@ fun KeyButton(letter: Char, onClick: (Char) -> Unit) {
                 height = Dimension.fillToConstraints
             })
         Box(modifier = Modifier
-            .background(OffWhite)
+            .background(colors.topRightColor)
             .constrainAs(boxTwo) {
                 linkTo(top = parent.top, bottom = horizontalMidpoint)
                 linkTo(start = verticalMidpoint, end = parent.end)
@@ -102,7 +154,7 @@ fun KeyButton(letter: Char, onClick: (Char) -> Unit) {
                 height = Dimension.fillToConstraints
             })
         Box(modifier = Modifier
-            .background(OffWhite)
+            .background(colors.bottomLeftColor)
             .constrainAs(boxThree) {
                 linkTo(top = horizontalMidpoint, bottom = parent.bottom)
                 linkTo(start = parent.start, end = verticalMidpoint)
@@ -110,7 +162,7 @@ fun KeyButton(letter: Char, onClick: (Char) -> Unit) {
                 height = Dimension.fillToConstraints
             })
         Box(modifier = Modifier
-            .background(OffWhite)
+            .background(colors.bottomRightColor)
             .constrainAs(boxFour) {
                 linkTo(top = horizontalMidpoint, bottom = parent.bottom)
                 linkTo(start = verticalMidpoint, end = parent.end)
@@ -128,5 +180,33 @@ fun KeyButton(letter: Char, onClick: (Char) -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun KeyboardPreview() {
-    Keyboard(onClickLetter = {}, onClickDelete = {}, onClickSubmit = {})
+    Keyboard(onClickLetter = {},
+        onClickDelete = {},
+        onClickSubmit = {},
+        keys = Keys.map { it to Key() }.toMap().toMutableMap()
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun KeyboardSingleColorPreview() {
+    Keyboard(onClickLetter = {}, onClickDelete = {}, onClickSubmit = {}, keys = Keys.map {
+        it to Key(colors = mutableListOf(CorrectGreen))
+    }.toMap().toMutableMap())
+}
+
+@Preview(showBackground = true)
+@Composable
+fun KeyboardTwoColorPreview() {
+    Keyboard(onClickLetter = {}, onClickDelete = {}, onClickSubmit = {}, keys = Keys.map {
+        it to Key(colors = mutableListOf(CorrectGreen, AlmostYellow))
+    }.toMap().toMutableMap())
+}
+
+@Preview(showBackground = true)
+@Composable
+fun KeyboardFourColorPreview() {
+    Keyboard(onClickLetter = {}, onClickDelete = {}, onClickSubmit = {}, keys = Keys.map {
+        it to Key(colors = mutableListOf(CorrectGreen, AlmostYellow, InactiveGray, OffWhite))
+    }.toMap().toMutableMap())
 }
