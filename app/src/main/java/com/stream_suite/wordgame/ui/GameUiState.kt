@@ -5,7 +5,7 @@ import com.stream_suite.wordgame.LetterState
 import com.stream_suite.wordgame.data.WORD_LENGTH
 import com.stream_suite.wordgame.ui.theme.OffWhite
 
-const val Keys = "ABCDEFJHIJKLMNOPQRSTUVWXYZ"
+const val Keys = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 data class GameUiState(
     val letters: List<MutableList<Letter>> = List(6) { MutableList(WORD_LENGTH) { Letter(' ') } },
