@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -21,8 +22,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
@@ -40,43 +43,66 @@ fun Keyboard(
     onClickDelete: () -> Unit,
     onClickSubmit: () -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-        KeyRow {
-            "QWERTYUIOP".forEach { letter ->
-                KeyButton(letter = letter, onClick = onClickLetter, states = keys[letter]?.states)
+    val keyGap = dimensionResource(R.dimen.key_gap)
+    BoxWithConstraints {
+        val keyWidth = (maxWidth - keyGap * 13) / 10
+        Column(
+            modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            KeyRow(keyGap = keyGap) {
+                "QWERTYUIOP".forEach { letter ->
+                    KeyButton(
+                        letter = letter,
+                        keyWidth = keyWidth,
+                        onClick = onClickLetter,
+                        states = keys[letter]?.states
+                    )
+                }
             }
-        }
-        KeyRow {
-            "ASDFGHJKL".forEach { letter ->
-                KeyButton(letter = letter, onClick = onClickLetter, states = keys[letter]?.states)
+            KeyRow(keyGap = keyGap) {
+                "ASDFGHJKL".forEach { letter ->
+                    KeyButton(
+                        letter = letter,
+                        keyWidth = keyWidth,
+                        onClick = onClickLetter,
+                        states = keys[letter]?.states
+                    )
+                }
             }
-        }
-        KeyRow {
-            Button(modifier = Modifier.wrapContentWidth(),
-                contentPadding = PaddingValues(4.dp),
-                onClick = { onClickDelete() }) {
-                Icon(
-                    painter = painterResource(R.drawable.backspace_24),
-                    contentDescription = "Delete"
-                )
-            }
-            "ZXCVBNM".forEach { letter ->
-                KeyButton(letter = letter, onClick = onClickLetter, states = keys[letter]?.states)
-            }
-            Button(modifier = Modifier.wrapContentWidth(),
-                contentPadding = PaddingValues(4.dp),
-                onClick = { onClickSubmit() }) {
-                Icon(painter = painterResource(R.drawable.send_24), contentDescription = "Submit")
+            KeyRow(keyGap = keyGap) {
+                Button(modifier = Modifier.wrapContentWidth(),
+                    contentPadding = PaddingValues(4.dp),
+                    onClick = { onClickDelete() }) {
+                    Icon(
+                        painter = painterResource(R.drawable.backspace_24),
+                        contentDescription = "Delete"
+                    )
+                }
+                "ZXCVBNM".forEach { letter ->
+                    KeyButton(
+                        letter = letter,
+                        keyWidth = keyWidth,
+                        onClick = onClickLetter,
+                        states = keys[letter]?.states
+                    )
+                }
+                Button(modifier = Modifier.wrapContentWidth(),
+                    contentPadding = PaddingValues(4.dp),
+                    onClick = { onClickSubmit() }) {
+                    Icon(
+                        painter = painterResource(R.drawable.send_24), contentDescription = "Submit"
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-fun KeyRow(content: @Composable () -> Unit) {
+fun KeyRow(keyGap: Dp, content: @Composable () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
+        horizontalArrangement = Arrangement.spacedBy(keyGap, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         content()
@@ -84,10 +110,10 @@ fun KeyRow(content: @Composable () -> Unit) {
 }
 
 @Composable
-fun KeyButton(letter: Char, onClick: (Char) -> Unit, states: List<LetterState>?) {
+fun KeyButton(letter: Char, keyWidth: Dp, onClick: (Char) -> Unit, states: List<LetterState>?) {
     when (states?.size) {
         4 -> KeyButton(
-            letter = letter, onClick = onClick, states = StateQuadrants(
+            letter = letter, keyWidth = keyWidth, onClick = onClick, states = StateQuadrants(
                 topLeftState = states[0],
                 topRightState = states[1],
                 bottomLeftState = states[2],
@@ -97,27 +123,29 @@ fun KeyButton(letter: Char, onClick: (Char) -> Unit, states: List<LetterState>?)
 
         2 -> KeyButton(
             letter = letter,
+            keyWidth = keyWidth,
             onClick = onClick,
             states = StateHalves(leftState = states[0], rightState = states[1])
         )
 
-        1 -> KeyButton(letter = letter, onClick = onClick, state = states[0])
+        1 -> KeyButton(letter = letter, keyWidth = keyWidth, onClick = onClick, state = states[0])
     }
 }
 
 @Composable
-fun KeyButton(letter: Char, onClick: (Char) -> Unit, state: LetterState) {
+fun KeyButton(letter: Char, keyWidth: Dp, onClick: (Char) -> Unit, state: LetterState) {
     KeyButton(
         letter = letter,
+        keyWidth = keyWidth,
         onClick = onClick,
         states = StateHalves(leftState = state, rightState = state)
     )
 }
 
 @Composable
-fun KeyButton(letter: Char, onClick: (Char) -> Unit, states: StateHalves) {
+fun KeyButton(letter: Char, keyWidth: Dp, onClick: (Char) -> Unit, states: StateHalves) {
     KeyButton(
-        letter = letter, onClick = onClick, states = StateQuadrants(
+        letter = letter, keyWidth = keyWidth, onClick = onClick, states = StateQuadrants(
             topLeftState = states.leftState,
             bottomLeftState = states.leftState,
             topRightState = states.rightState,
@@ -127,9 +155,9 @@ fun KeyButton(letter: Char, onClick: (Char) -> Unit, states: StateHalves) {
 }
 
 @Composable
-fun KeyButton(letter: Char, onClick: (Char) -> Unit, states: StateQuadrants) {
+fun KeyButton(letter: Char, keyWidth: Dp, onClick: (Char) -> Unit, states: StateQuadrants) {
     ConstraintLayout(modifier = Modifier
-        .width(32.dp)
+        .width(keyWidth)
         .wrapContentHeight()
         .padding(vertical = 4.dp)
         .clip(RoundedCornerShape(4.dp))
