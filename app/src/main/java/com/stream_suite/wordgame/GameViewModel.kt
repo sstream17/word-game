@@ -7,6 +7,7 @@ import com.stream_suite.wordgame.data.wordList
 import com.stream_suite.wordgame.data.wordListSize
 import com.stream_suite.wordgame.ui.GameUiState
 import com.stream_suite.wordgame.ui.Key
+import com.stream_suite.wordgame.ui.Keys
 import com.stream_suite.wordgame.ui.Letter
 import com.stream_suite.wordgame.util.wordlistBinarySearch
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -147,6 +148,7 @@ class GameViewModel : ViewModel() {
         _uiState.update { currentState ->
             currentState.copy(
                 letters = List(6) { MutableList(WORD_LENGTH) { Letter(' ') } },
+                keys = Keys.map { it to Key() }.toMap().toMutableMap(),
                 position = currentState.position.reset()
             )
         }
