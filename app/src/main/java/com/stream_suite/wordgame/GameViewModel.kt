@@ -6,7 +6,6 @@ import com.stream_suite.wordgame.data.WORD_LENGTH
 import com.stream_suite.wordgame.data.wordList
 import com.stream_suite.wordgame.data.wordListSize
 import com.stream_suite.wordgame.ui.GameUiState
-import com.stream_suite.wordgame.ui.Key
 import com.stream_suite.wordgame.ui.Keys
 import com.stream_suite.wordgame.ui.Letter
 import com.stream_suite.wordgame.util.wordlistBinarySearch
@@ -105,7 +104,7 @@ class GameViewModel : ViewModel() {
 
     fun getRowColor(
         answer: String, guess: String
-    ): Pair<List<MutableList<Letter>>, MutableMap<Char, Key>> {
+    ): Pair<List<MutableList<Letter>>, MutableMap<Char, MutableList<LetterState>>> {
         val currentPosition = _uiState.value.position
         val letters = _uiState.value.letters
         val keys = _uiState.value.keys
@@ -135,12 +134,12 @@ class GameViewModel : ViewModel() {
                 }
             }
             val letterState = letters[currentPosition.row][index].state
-            val keyState = when (keys[currentLetterUpper]?.states?.get(0)) {
+            val keyState = when (keys[currentLetterUpper]?.get(0)) {
                 LetterState.Correct -> LetterState.Correct
                 LetterState.Exists -> if (letterState == LetterState.Correct) LetterState.Correct else LetterState.Exists
                 else -> letterState
             }
-            keys[currentLetterUpper] = Key(mutableListOf(keyState))
+            keys[currentLetterUpper] = mutableListOf(keyState)
         }
 
         return Pair(letters, keys)
@@ -150,9 +149,12 @@ class GameViewModel : ViewModel() {
         guess = ""
         answer = getNewWord()
         _uiState.update { currentState ->
-            currentState.copy(
-                letters = List(6) { MutableList(WORD_LENGTH) { Letter(' ') } },
-                keys = Keys.map { it to Key() }.toMap().toMutableMap(),
+            currentState.copy(letters = List(6) { MutableList(WORD_LENGTH) { Letter(' ') } },
+                keys = Keys.map {
+                    it to MutableList(1) {
+                        LetterState.Initial
+                    }
+                }.toMap().toMutableMap(),
                 position = currentState.position.reset()
             )
         }

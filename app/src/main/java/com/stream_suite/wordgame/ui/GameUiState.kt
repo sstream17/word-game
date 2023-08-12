@@ -7,7 +7,11 @@ const val Keys = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 data class GameUiState(
     val letters: List<MutableList<Letter>> = List(6) { MutableList(WORD_LENGTH) { Letter(' ') } },
-    val keys: MutableMap<Char, Key> = Keys.map { it to Key() }.toMap().toMutableMap(),
+    val keys: MutableMap<Char, MutableList<LetterState>> = Keys.map {
+        it to MutableList(1) {
+            LetterState.Initial
+        }
+    }.toMap().toMutableMap(),
     val position: Position = Position(),
 )
 
@@ -34,9 +38,10 @@ data class Position(var row: Int = 0, var col: Int = 0) {
     }
 }
 
-data class Key(val states: MutableList<LetterState> = MutableList(1) { LetterState.Initial })
-
-data class StateHalves(val leftState: LetterState = LetterState.Initial, val rightState: LetterState = LetterState.Initial)
+data class StateHalves(
+    val leftState: LetterState = LetterState.Initial,
+    val rightState: LetterState = LetterState.Initial
+)
 
 data class StateQuadrants(
     val topLeftState: LetterState = LetterState.Initial,

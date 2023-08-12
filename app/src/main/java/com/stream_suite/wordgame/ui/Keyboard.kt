@@ -38,7 +38,7 @@ import com.stream_suite.wordgame.ui.theme.OffWhite
 
 @Composable
 fun Keyboard(
-    keys: MutableMap<Char, Key>,
+    keys: MutableMap<Char, MutableList<LetterState>>,
     onClickLetter: (Char) -> Unit,
     onClickDelete: () -> Unit,
     onClickSubmit: () -> Unit,
@@ -55,7 +55,7 @@ fun Keyboard(
                         letter = letter,
                         keyWidth = keyWidth,
                         onClick = onClickLetter,
-                        states = keys[letter]?.states
+                        states = keys[letter]
                     )
                 }
             }
@@ -65,7 +65,7 @@ fun Keyboard(
                         letter = letter,
                         keyWidth = keyWidth,
                         onClick = onClickLetter,
-                        states = keys[letter]?.states
+                        states = keys[letter]
                     )
                 }
             }
@@ -83,7 +83,7 @@ fun Keyboard(
                         letter = letter,
                         keyWidth = keyWidth,
                         onClick = onClickLetter,
-                        states = keys[letter]?.states
+                        states = keys[letter]
                     )
                 }
                 Button(modifier = Modifier.wrapContentWidth(),
@@ -221,23 +221,15 @@ fun KeyboardPreview() {
     Keyboard(onClickLetter = {},
         onClickDelete = {},
         onClickSubmit = {},
-        keys = Keys.map { it to Key() }.toMap().toMutableMap()
+        keys = Keys.map { it to mutableListOf(LetterState.Initial) }.toMap().toMutableMap()
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun KeyboardSingleColorPreview() {
-    Keyboard(onClickLetter = {}, onClickDelete = {}, onClickSubmit = {}, keys = Keys.map {
-        it to Key(states = mutableListOf(LetterState.Correct))
-    }.toMap().toMutableMap())
 }
 
 @Preview(showBackground = true)
 @Composable
 fun KeyboardTwoColorPreview() {
     Keyboard(onClickLetter = {}, onClickDelete = {}, onClickSubmit = {}, keys = Keys.map {
-        it to Key(states = mutableListOf(LetterState.Correct, LetterState.Exists))
+        it to mutableListOf(LetterState.Correct, LetterState.Exists)
     }.toMap().toMutableMap())
 }
 
@@ -245,10 +237,8 @@ fun KeyboardTwoColorPreview() {
 @Composable
 fun KeyboardFourColorPreview() {
     Keyboard(onClickLetter = {}, onClickDelete = {}, onClickSubmit = {}, keys = Keys.map {
-        it to Key(
-            states = mutableListOf(
-                LetterState.Correct, LetterState.Exists, LetterState.Missing, LetterState.Initial
-            )
+        it to mutableListOf(
+            LetterState.Correct, LetterState.Exists, LetterState.Missing, LetterState.Initial
         )
     }.toMap().toMutableMap())
 }

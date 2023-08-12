@@ -41,10 +41,12 @@ fun GameScreen(gameViewModel: GameViewModel = viewModel()) {
                 bottom.linkTo(parent.bottom)
                 linkTo(start = parent.start, end = parent.end)
             }) {
-            Keyboard(keys = gameUiState.keys,
+            Keyboard(
+                keys = gameUiState.keys,
                 onClickLetter = { gameViewModel.setLetter(it) },
                 onClickDelete = { gameViewModel.deleteLetter() },
-                onClickSubmit = { gameViewModel.checkGuess() })
+                onClickSubmit = { gameViewModel.checkGuess() },
+            )
         }
     }
 }
