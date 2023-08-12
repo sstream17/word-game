@@ -4,9 +4,17 @@ import com.stream_suite.wordgame.LetterState
 import com.stream_suite.wordgame.data.WORD_LENGTH
 
 const val Keys = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const val NUMBER_OF_TRIES = 5
 
 data class GameUiState(
-    val letters: List<MutableList<Letter>> = List(6) { MutableList(WORD_LENGTH) { Letter(' ') } },
+    val numberOfGames: Int = 1,
+    val letters: List<List<MutableList<Letter>>> = List(numberOfGames) {
+        List(numberOfGames + NUMBER_OF_TRIES) {
+            MutableList(
+                WORD_LENGTH
+            ) { Letter(' ') }
+        }
+    },
     val keys: MutableMap<Char, MutableList<LetterState>> = Keys.map {
         it to MutableList(1) {
             LetterState.Initial
