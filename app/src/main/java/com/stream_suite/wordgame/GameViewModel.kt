@@ -131,15 +131,32 @@ class GameViewModel : ViewModel() {
         letters: List<MutableList<Letter>>,
         keys: MutableMap<Char, MutableList<LetterState>>
     ) {
+        // Track count of letters in the answer to correctly handle words with duplicate letters
+        val answerLetterCounts = mutableMapOf<Char, Int>()
+        for (letter in answer) {
+            answerLetterCounts.putIfAbsent(letter, 0)
+            answerLetterCounts[letter] = answerLetterCounts[letter]!! + 1
+        }
+
         letters[currentPosition.row].forEachIndexed { index, _ ->
             val currentLetter = guess[index]
             val currentLetterUpper = currentLetter.uppercaseChar()
             val newState = when (currentLetter) {
-                answer[index] -> LetterState.Correct
+                answer[index] -> {
+                    answerLetterCounts[currentLetter] = answerLetterCounts[currentLetter]!! - 1
+                    LetterState.Correct
+                }
 
                 in answer.filterIndexed { answerLetterIndex, answerLetter ->
                     guess[answerLetterIndex] != answerLetter
-                } -> LetterState.Exists
+                } -> {
+                    if (answerLetterCounts[currentLetter]!! > 0) {
+                        answerLetterCounts[currentLetter] = answerLetterCounts[currentLetter]!! - 1
+                        LetterState.Exists
+                    } else {
+                        LetterState.Missing
+                    }
+                }
 
                 else -> LetterState.Missing
 
