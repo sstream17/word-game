@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import com.stream_suite.wordgame.data.AppResourceProvider
 import com.stream_suite.wordgame.ui.GameScreen
 import com.stream_suite.wordgame.ui.Keys
 import com.stream_suite.wordgame.ui.theme.WordGameTheme
@@ -23,6 +24,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        AppResourceProvider.initialize(applicationContext)
+
         setContent {
             WordGameTheme {
                 // A surface container using the 'background' color from the theme

@@ -3,8 +3,10 @@ package com.stream_suite.wordgame
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.stream_suite.wordgame.data.WORD_LENGTH
-import com.stream_suite.wordgame.data.wordList
-import com.stream_suite.wordgame.data.wordListSize
+import com.stream_suite.wordgame.data.dictionary
+import com.stream_suite.wordgame.data.dictionarySize
+import com.stream_suite.wordgame.data.possibleAnswers
+import com.stream_suite.wordgame.data.possibleAnswersSize
 import com.stream_suite.wordgame.ui.GameUiState
 import com.stream_suite.wordgame.ui.Keys
 import com.stream_suite.wordgame.ui.Letter
@@ -77,7 +79,7 @@ class GameViewModel : ViewModel() {
                 Log.d("yeet", "checkGuess: not enough chars")
             }
 
-            wordlistBinarySearch(wordList, guess.lowercase(), 0, wordListSize, WORD_LENGTH) -> {
+            wordlistBinarySearch(dictionary, guess.lowercase(), 0, dictionarySize, WORD_LENGTH) -> {
                 Log.d("yeet", "checkGuess: next try")
                 setNextGuess()
             }
@@ -193,8 +195,8 @@ class GameViewModel : ViewModel() {
     }
 
     private fun getNewWord(): String {
-        val r = Random(System.nanoTime()).nextInt(wordListSize)
+        val r = Random(System.nanoTime()).nextInt(possibleAnswersSize)
         val wordSlice = r * WORD_LENGTH
-        return wordList.slice(wordSlice until wordSlice + WORD_LENGTH)
+        return possibleAnswers.slice(wordSlice until wordSlice + WORD_LENGTH)
     }
 }
